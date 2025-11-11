@@ -9,6 +9,8 @@ Item {
     property alias size: icon.width
     property bool active: false;
     property alias source: icon.source
+    property color textColor: Kirigami.Theme.textColor
+    property color highlightColor: Kirigami.Theme.highlightColor
     signal clicked()
 
     Layout.preferredWidth: size
@@ -18,8 +20,8 @@ Item {
         id: icon
         width: Kirigami.Units.iconSizes.small;
         height: width;
-        color: container.active ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
-
+        color: container.active ? highlightColor: textColor
+        
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor

@@ -17,6 +17,9 @@ Item {
 
     id: container
 
+    property color textColor: Kirigami.Theme.textColor
+    property color highlightColor: Kirigami.Theme.highlightColor
+
     Timer {
         id: timer
         interval: 200;
@@ -38,6 +41,28 @@ Item {
             Layout.fillWidth: true
             value: container.songPosition / container.songLength
             property bool changingPosition: false
+
+            background: Rectangle {
+                id: groove
+                anchors.centerIn: parent
+                height: 5
+                width: parent.width
+                radius: height/2
+                color: Kirigami.Theme.disabledTextColor
+
+                Rectangle {
+                    width: timeTrackSlider.visualPosition * parent.width
+                    height: parent.height
+                    radius: height/2
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "white", 0.2)  }
+                        GradientStop { position: 0.4; color: container.highlightColor}
+                        GradientStop { position: 0.6; color: container.highlightColor }
+                        GradientStop { position: 1; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "black", 0.2)  }
+                    }
+                }
+            }
 
             onPressedChanged: () => {
                 if (!pressed) {
@@ -87,10 +112,12 @@ Item {
 
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignLeft
+                color: container.textColor
                 text: timeLabels.formatDuration(container.songPosition)
             }
             PlasmaComponents3.Label {
                 Layout.alignment: Qt.AlignRight
+                color: container.textColor
                 text: timeLabels.formatDuration(container.songLength - container.songPosition)
             }
         }

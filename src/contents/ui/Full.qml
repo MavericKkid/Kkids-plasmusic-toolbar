@@ -10,9 +10,13 @@ import Qt5Compat.GraphicalEffects
 
 
 Item {
+    id: root
+    
     property string albumPlaceholder: plasmoid.configuration.albumPlaceholder
+    property string desktopBackground: plasmoid.configuration.desktopWidgetBg
     property real volumeStep: plasmoid.configuration.volumeStep
     property bool albumCoverBackground: plasmoid.configuration.fullAlbumCoverAsBackground
+    property int roundedCornerRadius: plasmoid.configuration.radiusSpinbox
 
     Layout.preferredHeight: column.implicitHeight
     Layout.preferredWidth: column.implicitWidth
@@ -20,8 +24,8 @@ Item {
     Layout.minimumHeight: column.implicitHeight
 
 
-    Kirigami.Theme.textColor: albumCoverBackground ? imageColors.fgColor : Kirigami.Theme.textColor
-    Kirigami.Theme.highlightColor: albumCoverBackground ? imageColors.hlColor : Kirigami.Theme.highlightColor
+    readonly property color foregroundColor: albumCoverBackground ? imageColors.contrastColor : Kirigami.Theme.textColor
+    readonly property color highlightColor: albumCoverBackground ? imageColors.hlColor : Kirigami.Theme.highlightColor
 
     Item {
         visible: albumCoverBackground
@@ -30,37 +34,75 @@ Item {
         height: column.height
         width: column.width
 
-        ImageWithPlaceholder {
-            id: albumArtFull
+
+        Rectangle {
+            id: mask
+            topLeftRadius : desktopBackground != PlasmaCore.Types.StandardBackground ? roundedCornerRadius : 0
+            topRightRadius: desktopBackground != PlasmaCore.Types.StandardBackground ? roundedCornerRadius : 0
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             height: parent.height * 0.7
             width: parent.width
-            fillMode: Image.PreserveAspectCrop
-            placeholderSource: albumPlaceholder
-            imageSource: player.artUrl
 
-            onStatusChanged: {
-                if (status === Image.Ready) {
-                    imageColors.update()
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: Rectangle {
+                    x: mask.x; y: mask.y
+                    width: mask.width
+                    height: mask.height
+                    topLeftRadius : mask.topLeftRadius
+                    topRightRadius: mask.topRightRadius
                 }
             }
 
-            Kirigami.ImageColors {
-                id: imageColors
-                source: albumArtFull
+            ImageWithPlaceholder {
+                id: albumArtFull
+                anchors.top: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: parent.height * 0.7
+                width: parent.width
+                fillMode: Image.PreserveAspectCrop
+                placeholderSource: albumPlaceholder
+                imageSource: player.artUrl
 
-                readonly property color bgColor: average
-                readonly property var bgColorBrightness: Kirigami.ColorUtils.brightnessForColor(bgColor)
-                readonly property color contrastColor: bgColorBrightness === Kirigami.ColorUtils.Dark ? "white" : "black"
-                readonly property color fgColor: Kirigami.ColorUtils.tintWithAlpha(bgColor, contrastColor, .6)
-                readonly property color hlColor: Kirigami.ColorUtils.tintWithAlpha(bgColor, contrastColor, .8)
+                onStatusChanged: {
+                    if (status === Image.Ready) {
+                        imageColors.update()
+                    }
+                }
+
+                Kirigami.ImageColors {
+                    id: imageColors
+                    source: albumArtFull
+                    readonly property color realbgColor: average
+
+                    readonly property real startval: 0.7
+                    readonly property real endval: 0.85
+                    readonly property real startsat: 0.1
+                    readonly property real endsat: 0.7
+
+                    // create linear equation y=ax+b.
+                    // have no changes to value/saturation until startsat/-val
+                    // and then scale linearly with endpoint at x=1 y=endval/-sat
+
+                    readonly property real aval: (startval - endval)/(startval - 1)
+                    readonly property real bval:  startval* (endval -1)/(startval-1)
+                    readonly property real asat: (startsat - endsat)/(startsat - 1)
+                    readonly property real bsat:  startsat* (endsat -1)/(startsat-1)
+
+                    readonly property color newVal: Qt.hsva(realbgColor.hsvHue,realbgColor.hsvSaturation,(realbgColor.hsvValue*aval+bval),1)
+                    readonly property color bgColor: realbgColor.hsvValue>startval ? newVal : realbgColor
+                    readonly property color contrastColor: Kirigami.ColorUtils.brightnessForColor(bgColor) === Kirigami.ColorUtils.Dark ? "white" : "black"
+                    readonly property real hsvSat: realbgColor.hsvValue>startval ? asat*realbgColor.hsvSaturation+bsat : realbgColor.hsvSaturation
+                    readonly property color hlColor: bgColor.hsvSaturation<startsat ? Qt.hsva(bgColor.hsvHue ,0.1,1,1) : Qt.hsva(bgColor.hsvHue,hsvSat,1,1)
+                }
             }
         }
 
-        LinearGradient {
-            id: mask
+        Rectangle {
+            id: bottomRect
             anchors.fill: parent
+            radius: desktopBackground != PlasmaCore.Types.StandardBackground ? roundedCornerRadius : 0
             gradient: Gradient {
                 GradientStop { position: 0; color: "transparent" }
                 GradientStop { position: 0.4; color: "transparent" }
@@ -115,6 +157,8 @@ Item {
         TrackPositionSlider {
             Layout.leftMargin: 20
             Layout.rightMargin: 20
+            textColor:  root.foregroundColor
+            highlightColor: root.highlightColor
             songPosition: player.songPosition
             songLength: player.songLength
             playing: player.playbackStatus === Mpris.PlaybackStatus.Playing
@@ -134,6 +178,7 @@ Item {
             artists: player.artists
             album: player.album
             textFont: baseFont
+            color: root.foregroundColor
             maxWidth: 250
             titlePosition: plasmoid.configuration.fullTitlePosition
             artistsPosition: plasmoid.configuration.fullArtistsPosition
@@ -144,6 +189,8 @@ Item {
             Layout.leftMargin: 40
             Layout.rightMargin: 40
             Layout.topMargin: 10
+            textColor:  root.foregroundColor
+            highlightColor: root.highlightColor
             volume: player.volume
             onSetVolume: (vol) => {
                 player.setVolume(vol)
@@ -169,6 +216,8 @@ Item {
 
                 CommandIcon {
                     enabled: player.canChangeShuffle
+                    textColor:  root.foregroundColor
+                    highlightColor: root.highlightColor
                     Layout.alignment: Qt.AlignHCenter
                     size: Kirigami.Units.iconSizes.medium
                     source: "media-playlist-shuffle"
@@ -178,6 +227,8 @@ Item {
 
                 CommandIcon {
                     enabled: player.canGoPrevious
+                    textColor:  root.foregroundColor
+                    highlightColor: root.highlightColor
                     Layout.alignment: Qt.AlignHCenter
                     size: Kirigami.Units.iconSizes.medium
                     source: "media-skip-backward"
@@ -186,6 +237,8 @@ Item {
 
                 CommandIcon {
                     enabled: player.playbackStatus === Mpris.PlaybackStatus.Playing ? player.canPause : player.canPlay
+                    textColor:  root.foregroundColor
+                    highlightColor: root.highlightColor
                     Layout.alignment: Qt.AlignHCenter
                     size: Kirigami.Units.iconSizes.large
                     source: player.playbackStatus === Mpris.PlaybackStatus.Playing ? "media-playback-pause" : "media-playback-start"
@@ -194,6 +247,8 @@ Item {
 
                 CommandIcon {
                     enabled: player.canGoNext
+                    textColor:  root.foregroundColor
+                    highlightColor: root.highlightColor
                     Layout.alignment: Qt.AlignHCenter
                     size: Kirigami.Units.iconSizes.medium
                     source: "media-skip-forward"
@@ -202,6 +257,8 @@ Item {
 
                 CommandIcon {
                     enabled: player.canChangeLoopStatus
+                    textColor:  root.foregroundColor
+                    highlightColor: root.highlightColor
                     Layout.alignment: Qt.AlignHCenter
                     size: Kirigami.Units.iconSizes.medium
                     source: player.loopStatus === Mpris.LoopStatus.Track ? "media-playlist-repeat-song" : "media-playlist-repeat"

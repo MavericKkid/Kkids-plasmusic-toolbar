@@ -6,11 +6,14 @@ import org.kde.kirigami as Kirigami
 Item {
     id: container
     property real volume: 0.5;
-    property real size: 3;
+    property real size: 5;
     property real iconSize: Kirigami.Units.iconSizes.small;
     readonly property real minVolume: 0.0;
     readonly property real maxVolume: 1.0;
     readonly property real clampedVolume: clampVolume(volume);
+
+    property color textColor: Kirigami.Theme.textColor
+    property color highlightColor: Kirigami.Theme.highlightColor
 
     signal setVolume(newVolume: real)
     signal volumeUp()
@@ -33,6 +36,8 @@ Item {
                 if (container.volume > container.minVolume) container.volumeDown();
             }
             source: 'audio-volume-low';
+            textColor: container.textColor
+            highlightColor: container.highlightColor
         }
 
         Rectangle {
@@ -59,10 +64,22 @@ Item {
             Layout.fillWidth: true
             id: full
             color: Kirigami.Theme.disabledTextColor
+            radius: height/2
+
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: Rectangle {
+                    x: full.x; y: full.y
+                    width: full.width
+                    height: full.height
+                    radius: full.radius
+                }
+            }
 
             Rectangle {
                 Layout.alignment: Qt.AlignLeft
                 height: container.size
+                smooth: false
                 width: full.width * clampedVolume;
                 color: Kirigami.Theme.highlightColor
             }
@@ -74,6 +91,8 @@ Item {
                 if (container.volume < container.maxVolume) container.volumeUp();
             }
             source: 'audio-volume-high';
+            textColor: container.textColor
+            highlightColor: container.highlightColor
         }
     }
 }

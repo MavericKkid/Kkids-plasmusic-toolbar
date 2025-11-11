@@ -19,6 +19,7 @@ KCM.SimpleKCM {
     property alias cfg_fullTitlePosition: fullTitlePosition.value
     property alias cfg_fullAlbumPosition: fullAlbumPosition.value
     property alias cfg_fullAlbumCoverAsBackground: fullAlbumCoverAsBackground.checked
+    property alias cfg_radiusSpinbox: radiusSpinbox.value
 
     Kirigami.FormLayout {
         id: form
@@ -272,6 +273,22 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Use album cover as background")
             id: fullAlbumCoverAsBackground
             text: i18n("(Experimental feature)")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Rounded Corner Radius")
+            SpinBox {
+                id: radiusSpinbox
+                from: 0
+                to: 1000
+                enabled: fullAlbumCoverAsBackground.checked
+            }
+            Kirigami.ContextualHelpButton {
+                toolTipText: (
+                    "Rounded Corner Radius when album cover is used as background."
+                )
+                enabled: fullAlbumCoverAsBackground.checked
+            }
         }
     }
 
