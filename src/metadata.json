@@ -8,12 +8,12 @@
             }
         ],
         "Description": "Show currently playing song information and provide playback controls",
-        "BugReportUrl": "https://github.com/MavericKkid/plasmusic-toolbar/issues",
-        "Website": "https://github.com/MavericKkid/plasmusic-toolbar",
+        "BugReportUrl": "https://github.com/MavericKkid/Kkids-plasmusic-toolbar/issues",
+        "Website": "https://github.com/MavericKkid/Kkids-plasmusic-toolbar",
         "Icon": "view-media-track",
-        "Id": "plasmusic-toolbar",
+        "Id": "Kkids-plasmusic-toolbar",
         "License": "GPL3",
-        "Name": "PlasMusic Toolbar",
+        "Name": "Kkids PlasMusic Toolbar",
         "Version": "3.7.0",
         "Category": "Multimedia"
     },

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
+import Qt5Compat.GraphicalEffects
 
 Item {
     id: container
@@ -81,7 +82,7 @@ Item {
                 height: container.size
                 smooth: false
                 width: full.width * clampedVolume;
-                color: Kirigami.Theme.highlightColor
+                color: container.highlightColor
             }
         }
 

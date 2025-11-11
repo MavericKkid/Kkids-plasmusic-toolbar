@@ -2,6 +2,8 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.coreaddons 1.0 as KCoreAddons
+import Qt5Compat.GraphicalEffects
+import org.kde.kirigami as Kirigami
 
 Item {
     property double songPosition: 0;  // Last song position detected in microseconds
@@ -56,10 +58,10 @@ Item {
                     radius: height/2
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "white", 0.2)  }
+                        GradientStop { position: 0; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "white", 0.4)  }
                         GradientStop { position: 0.4; color: container.highlightColor}
                         GradientStop { position: 0.6; color: container.highlightColor }
-                        GradientStop { position: 1; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "black", 0.2)  }
+                        GradientStop { position: 1; color: Kirigami.ColorUtils.linearInterpolation(container.highlightColor, "black", 0.4)  }
                     }
                 }
             }

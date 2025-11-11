@@ -57,12 +57,11 @@ Item {
 
             ImageWithPlaceholder {
                 id: albumArtFull
-                anchors.top: parent.top
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: parent.height * 0.7
-                width: parent.width
-                fillMode: Image.PreserveAspectCrop
+                opacity: 1
+                smooth: false
+                anchors.fill: parent
                 placeholderSource: albumPlaceholder
+                fillMode: Image.PreserveAspectCrop
                 imageSource: player.artUrl
 
                 onStatusChanged: {
@@ -74,6 +73,8 @@ Item {
                 Kirigami.ImageColors {
                     id: imageColors
                     source: albumArtFull
+
+
                     readonly property color realbgColor: average
 
                     readonly property real startval: 0.7
